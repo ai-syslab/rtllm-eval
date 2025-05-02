@@ -1,0 +1,130 @@
+#! /usr/bin/vvp
+:ivl_version "11.0 (stable)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision - 12;
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/system.vpi";
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/vhdl_sys.vpi";
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/vhdl_textio.vpi";
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/v2005_math.vpi";
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/va_math.vpi";
+S_0x64f040b2dc10 .scope module, "testbench" "testbench" 2 3;
+ .timescale -9 -12;
+v0x64f040b556f0_0 .var "A", 2 0;
+v0x64f040b557d0_0 .net "A_equal", 0 0, L_0x64f040b56010;  1 drivers
+v0x64f040b55870_0 .net "A_greater", 0 0, L_0x64f040b55d90;  1 drivers
+v0x64f040b55970_0 .net "A_less", 0 0, L_0x64f040b563e0;  1 drivers
+v0x64f040b55a40_0 .var "B", 2 0;
+v0x64f040b55ae0_0 .var/i "error", 31 0;
+v0x64f040b55b80_0 .var/i "i", 31 0;
+S_0x64f040b3acb0 .scope module, "uut" "comparator_3bit" 2 13, 3 1 0, S_0x64f040b2dc10;
+ .timescale 0 0;
+    .port_info 0 /INPUT 3 "A";
+    .port_info 1 /INPUT 3 "B";
+    .port_info 2 /OUTPUT 1 "A_greater";
+    .port_info 3 /OUTPUT 1 "A_equal";
+    .port_info 4 /OUTPUT 1 "A_less";
+v0x64f040b2b9b0_0 .net "A", 2 0, v0x64f040b556f0_0;  1 drivers
+v0x64f040b2ba50_0 .net "A_equal", 0 0, L_0x64f040b56010;  alias, 1 drivers
+v0x64f040b54c40_0 .net "A_greater", 0 0, L_0x64f040b55d90;  alias, 1 drivers
+v0x64f040b54ce0_0 .net "A_less", 0 0, L_0x64f040b563e0;  alias, 1 drivers
+v0x64f040b54da0_0 .net "B", 2 0, v0x64f040b55a40_0;  1 drivers
+v0x64f040b54ed0_0 .net *"_ivl_0", 0 0, L_0x64f040b55c20;  1 drivers
+L_0x796e965860a8 .functor BUFT 1, C4<1>, C4<0>, C4<0>, C4<0>;
+v0x64f040b54f90_0 .net/2u *"_ivl_10", 0 0, L_0x796e965860a8;  1 drivers
+L_0x796e965860f0 .functor BUFT 1, C4<0>, C4<0>, C4<0>, C4<0>;
+v0x64f040b55070_0 .net/2u *"_ivl_12", 0 0, L_0x796e965860f0;  1 drivers
+v0x64f040b55150_0 .net *"_ivl_16", 0 0, L_0x64f040b56220;  1 drivers
+L_0x796e96586138 .functor BUFT 1, C4<1>, C4<0>, C4<0>, C4<0>;
+v0x64f040b55210_0 .net/2u *"_ivl_18", 0 0, L_0x796e96586138;  1 drivers
+L_0x796e96586018 .functor BUFT 1, C4<1>, C4<0>, C4<0>, C4<0>;
+v0x64f040b552f0_0 .net/2u *"_ivl_2", 0 0, L_0x796e96586018;  1 drivers
+L_0x796e96586180 .functor BUFT 1, C4<0>, C4<0>, C4<0>, C4<0>;
+v0x64f040b553d0_0 .net/2u *"_ivl_20", 0 0, L_0x796e96586180;  1 drivers
+L_0x796e96586060 .functor BUFT 1, C4<0>, C4<0>, C4<0>, C4<0>;
+v0x64f040b554b0_0 .net/2u *"_ivl_4", 0 0, L_0x796e96586060;  1 drivers
+v0x64f040b55590_0 .net *"_ivl_8", 0 0, L_0x64f040b55f70;  1 drivers
+L_0x64f040b55c20 .cmp/gt 3, v0x64f040b556f0_0, v0x64f040b55a40_0;
+L_0x64f040b55d90 .functor MUXZ 1, L_0x796e96586060, L_0x796e96586018, L_0x64f040b55c20, C4<>;
+L_0x64f040b55f70 .cmp/eq 3, v0x64f040b556f0_0, v0x64f040b55a40_0;
+L_0x64f040b56010 .functor MUXZ 1, L_0x796e965860f0, L_0x796e965860a8, L_0x64f040b55f70, C4<>;
+L_0x64f040b56220 .cmp/gt 3, v0x64f040b55a40_0, v0x64f040b556f0_0;
+L_0x64f040b563e0 .functor MUXZ 1, L_0x796e96586180, L_0x796e96586138, L_0x64f040b56220, C4<>;
+    .scope S_0x64f040b2dc10;
+T_0 ;
+    %pushi/vec4 0, 0, 32;
+    %store/vec4 v0x64f040b55ae0_0, 0, 32;
+    %end;
+    .thread T_0;
+    .scope S_0x64f040b2dc10;
+T_1 ;
+    %pushi/vec4 0, 0, 32;
+    %store/vec4 v0x64f040b55b80_0, 0, 32;
+T_1.0 ;
+    %load/vec4 v0x64f040b55b80_0;
+    %cmpi/s 100, 0, 32;
+    %jmp/0xz T_1.1, 5;
+    %vpi_func 2 26 "$random" 32 {0 0 0};
+    %pushi/vec4 8, 0, 32;
+    %mod/s;
+    %pad/s 3;
+    %store/vec4 v0x64f040b556f0_0, 0, 3;
+    %vpi_func 2 27 "$random" 32 {0 0 0};
+    %pushi/vec4 8, 0, 32;
+    %mod/s;
+    %pad/s 3;
+    %store/vec4 v0x64f040b55a40_0, 0, 3;
+    %delay 10000, 0;
+    %load/vec4 v0x64f040b55a40_0;
+    %load/vec4 v0x64f040b556f0_0;
+    %cmp/u;
+    %flag_get/vec4 5;
+    %load/vec4 v0x64f040b55870_0;
+    %nor/r;
+    %and;
+    %flag_set/vec4 8;
+    %load/vec4 v0x64f040b556f0_0;
+    %load/vec4 v0x64f040b55a40_0;
+    %cmp/e;
+    %flag_get/vec4 4;
+    %load/vec4 v0x64f040b557d0_0;
+    %nor/r;
+    %and;
+    %flag_set/vec4 9;
+    %flag_or 9, 8;
+    %load/vec4 v0x64f040b556f0_0;
+    %load/vec4 v0x64f040b55a40_0;
+    %cmp/u;
+    %flag_get/vec4 5;
+    %load/vec4 v0x64f040b55970_0;
+    %nor/r;
+    %and;
+    %flag_set/vec4 8;
+    %flag_or 8, 9;
+    %jmp/0xz  T_1.2, 8;
+    %load/vec4 v0x64f040b55ae0_0;
+    %addi 1, 0, 32;
+    %store/vec4 v0x64f040b55ae0_0, 0, 32;
+    %vpi_call 2 35 "$display", "Test failed: A = %b, B = %b, A_greater = %b, A_equal = %b, A_less = %b", v0x64f040b556f0_0, v0x64f040b55a40_0, v0x64f040b55870_0, v0x64f040b557d0_0, v0x64f040b55970_0 {0 0 0};
+T_1.2 ;
+    %load/vec4 v0x64f040b55b80_0;
+    %addi 1, 0, 32;
+    %store/vec4 v0x64f040b55b80_0, 0, 32;
+    %jmp T_1.0;
+T_1.1 ;
+    %load/vec4 v0x64f040b55ae0_0;
+    %cmpi/e 0, 0, 32;
+    %jmp/0xz  T_1.4, 4;
+    %vpi_call 2 42 "$display", "=========== Your Design Passed ===========" {0 0 0};
+    %jmp T_1.5;
+T_1.4 ;
+    %vpi_call 2 45 "$display", "=========== Test completed with %d /100 failures ===========", v0x64f040b55ae0_0 {0 0 0};
+T_1.5 ;
+    %vpi_call 2 48 "$finish" {0 0 0};
+    %end;
+    .thread T_1;
+# The file index is used to find the file name in the following table.
+:file_names 4;
+    "N/A";
+    "<interactive>";
+    "testbench.v";
+    "design.v";

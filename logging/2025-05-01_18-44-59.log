@@ -1,0 +1,14 @@
+2025-05-01 18:44:59,670 - Verilog Generation Tool - INFO - This is a test log message
+2025-05-01 18:45:01,731 - Verilog Generation Tool - WARNING - No similar designs found in RAG dataset
+2025-05-01 18:45:05,488 - Verilog Generation Tool - INFO - Generated Verilog written to /home/arun/Research/LLM_HDL/RTLLM_Eval/RTLLM/Arithmetic/Comparator/comparator_4bit/design.v
+2025-05-01 18:45:05,488 - Verilog Generation Tool - INFO - Testing Verilog Design
+2025-05-01 18:45:05,508 - Verilog Generation Tool - INFO - Verilog design passed all tests
+2025-05-01 18:45:05,840 - Verilog Generation Tool - WARNING - No similar designs found in RAG dataset
+2025-05-01 18:45:07,584 - Verilog Generation Tool - INFO - Generated Verilog written to /home/arun/Research/LLM_HDL/RTLLM_Eval/RTLLM/Arithmetic/Comparator/comparator_3bit/design.v
+2025-05-01 18:45:07,585 - Verilog Generation Tool - INFO - Testing Verilog Design
+2025-05-01 18:45:07,604 - Verilog Generation Tool - INFO - Verilog design passed all tests
+2025-05-01 18:45:08,374 - Verilog Generation Tool - WARNING - No similar designs found in RAG dataset
+2025-05-01 18:45:12,843 - Verilog Generation Tool - INFO - Generated Verilog written to /home/arun/Research/LLM_HDL/RTLLM_Eval/RTLLM/Arithmetic/Accumulator/accu/design.v
+2025-05-01 18:45:12,843 - Verilog Generation Tool - INFO - Testing Verilog Design
+2025-05-01 18:45:12,862 - Verilog Generation Tool - INFO - Verilog design passed all tests
+2025-05-01 18:45:13,176 - Verilog Generation Tool - WARNING - No similar designs found in RAG dataset

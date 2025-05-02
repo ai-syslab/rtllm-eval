@@ -1,0 +1,21 @@
+2025-05-01 18:31:39,784 - Verilog Generation Tool - INFO - This is a test log message
+2025-05-01 18:31:58,153 - Verilog Generation Tool - INFO - Generated Verilog written to /home/arun/Research/LLM_HDL/RTLLM_Eval/RTLLM/Arithmetic/Comparator/comparator_4bit/design.v
+2025-05-01 18:31:58,153 - Verilog Generation Tool - INFO - Testing Verilog Design
+2025-05-01 18:31:58,204 - Verilog Generation Tool - ERROR - Compilation Error:
+design.v:12: syntax error
+design.v:12: error: Operand of unary ! is not a primary expression.
+
+2025-05-01 18:31:58,205 - Verilog Generation Tool - ERROR - Verilog design failed tests: design.v:12: syntax error
+design.v:12: error: Operand of unary ! is not a primary expression.
+
+2025-05-01 18:32:04,424 - Verilog Generation Tool - INFO - Generated Verilog written to /home/arun/Research/LLM_HDL/RTLLM_Eval/RTLLM/Arithmetic/Comparator/comparator_3bit/design.v
+2025-05-01 18:32:04,424 - Verilog Generation Tool - INFO - Testing Verilog Design
+2025-05-01 18:32:04,436 - Verilog Generation Tool - ERROR - Compilation Error:
+design.v:3: warning: macro verilog undefined (and assumed null) at this point.
+design.v:1: syntax error
+I give up.
+
+2025-05-01 18:32:04,436 - Verilog Generation Tool - ERROR - Verilog design failed tests: design.v:3: warning: macro verilog undefined (and assumed null) at this point.
+design.v:1: syntax error
+I give up.
+

@@ -1,0 +1,7 @@
+2025-04-08 14:02:05,743 - Verilog Generation Tool - INFO - This is a test log message
+2025-04-08 14:02:09,314 - Verilog Generation Tool - INFO - Generated Verilog written to /home/arun/Research/RTLLM/RTLLM_Eval/RTLLM/Arithmetic/Comparator/comparator_4bit/design.v
+2025-04-08 14:02:09,314 - Verilog Generation Tool - INFO - Testing Verilog Design
+2025-04-08 14:02:09,324 - Verilog Generation Tool - INFO - Verilog design passed all tests
+2025-04-08 14:02:12,042 - Verilog Generation Tool - INFO - Generated Verilog written to /home/arun/Research/RTLLM/RTLLM_Eval/RTLLM/Arithmetic/Comparator/comparator_3bit/design.v
+2025-04-08 14:02:12,043 - Verilog Generation Tool - INFO - Testing Verilog Design
+2025-04-08 14:02:12,066 - Verilog Generation Tool - INFO - Verilog design passed all tests

@@ -1,0 +1,19 @@
+#prompt to reflect on verilog script failure if verilog script output is not as intended
+verilog_reflection_prompt: |
+  It seems that the code you generated in a previous message resulted in an error when executed.
+  
+  To help identify potential issues, please reflect on the code using the following process:
+  
+  Analyze the Error Message: Carefully review the error message and consider what it might indicate about the code. For example, does it point to a syntax error, a logical flaw, or an issue with data types or inputs?
+  
+  Review the Code Structure: Examine the structure of the code. Are there any obvious issues, such as missing or misplaced syntax, incorrect variable usage, or improper function calls?
+  
+  Consider Logical Flow: Reflect on the logical flow of the code. Are there any conditions, loops, or calculations that might not behave as intended? Could there be edge cases or unexpected inputs that the code doesn't handle properly?
+  
+  Identify Potential Fixes: Based on your analysis, suggest potential changes to the code that might resolve the error. Explain why these changes could address the issue.
+  
+  Reflect on Best Practices: Consider whether the code adheres to best practices for readability, maintainability, and robustness. Are there any improvements that could prevent similar errors in the future?
+  
+  Please provide a detailed reflection based on this process. Your insights will be used to modify and improve the code.
+  Do not generate a new script for the module or testbench;
+  Only print out possible reasons for the error and instructions on how to modify the design and testbench;
