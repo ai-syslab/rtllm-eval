@@ -144,8 +144,9 @@ class VerilogGenerationAgent:
         
         self.logger.info(f"Generated Design:\n{module}\n")
         
-        if input("\nPress Enter to continue, or 'exit' to stop: ").lower() == "exit":
-            raise StopIteration("User requested termination")
+        # user_input = input("\nContinue design iteration? (Y/N): ").upper()
+        # if user_input != 'Y':
+        #     raise StopIteration("User requested termination")
             
         # Update conversation history
         if len(self.conversation) >= 4:
@@ -177,7 +178,6 @@ class VerilogGenerationAgent:
         )
         
         if result.returncode != 0:
-            print(f"Compilation Error:\n{result.stderr}\n")
             self.logger.error(f"Compilation Error:\n{result.stderr}\n")
             msg = result.stderr
         else:
@@ -190,24 +190,24 @@ class VerilogGenerationAgent:
             )
             
             if result.returncode != 0:
-                print(f"Runtime Error:\n{result.stderr}\n")
                 self.logger.error(f"Runtime Error:\n{result.stderr}\n")
                 msg = result.stderr
             else:
-                print(f"Test Output:\n{result.stdout}\n")
                 msg = result.stdout
         
         # Write results
         self._write_results(msg)
         
-        # Check if we should continue
-        if self.curr_loop == self.config.max_loops:
-            return 2
-            
-        self.curr_loop += 1
-        
+        # Check if tests passed
         if "passed" in msg.lower():
             return 2
+            
+        # Check if we've exceeded max loops
+        if self.curr_loop >= self.config.max_loops:
+            return 2
+            
+        # Increment loop counter
+        self.curr_loop += 1
             
         # Handle test failure with reflection
         return self._handle_test_failure(msg)
@@ -217,7 +217,8 @@ class VerilogGenerationAgent:
         reflection_prompt = f"{self.config.verilog_reflection_prompt}\nError: {error_msg}"
         print(f"\nReflection Prompt:\n{reflection_prompt}\n")
         
-        if input("\nPress Enter to continue, or 'exit' to stop: ").lower() == "exit":
+        user_input = input("\nContinue with reflection? (Y/N): ").upper()
+        if user_input != 'Y':
             return 2
             
         self.conversation.append(HumanMessage(content=reflection_prompt))
@@ -225,8 +226,9 @@ class VerilogGenerationAgent:
         
         print(f"\nLLM Reflection:\n{reflection}\n")
         
-        if input("\nPress Enter to continue, or 'exit' to stop: ").lower() == "exit":
-            raise StopIteration("User requested termination")
+        user_input = input("\nContinue with design modification? (Y/N): ").upper()
+        if user_input != 'Y':
+            return 2
             
         new_prompt = (
             f'Modify the verilog design using these suggestions: """{reflection}"""\n'
@@ -236,7 +238,7 @@ class VerilogGenerationAgent:
         self.conversation.append(HumanMessage(content=new_prompt))
         self.config.design_prompt = new_prompt
         
-        return 1
+        return 1  # Return 1 to continue the loop
 
     def _write_results(self, test_output: str) -> None:
         """Write test results and current state to output file."""
@@ -256,7 +258,14 @@ Current Conversation History:
 """
         
         output_file = self.config.working_dir / "output.txt"
-        output_file.write_text(output_content)
+        if self.curr_loop == 1:
+            # First iteration - create new file
+            output_file.write_text(output_content)
+        else:
+            # Subsequent iterations - append to file
+            with output_file.open('a') as f:
+                f.write("\n" + "="*80 + "\n")  # Add separator between iterations
+                f.write(output_content)
 
     def _format_conversation(self) -> str:
         """Format conversation history for output file."""
@@ -267,6 +276,43 @@ Current Conversation History:
 
     def end_graph(self, state: AgentState) -> dict:
         """Handle end of execution."""
+        # Run final test to show results
+        self.logger.info("Running final test")
+        
+        # Run tests
+        compile_cmd = ["iverilog", "-o", "netlist.vvp", "design.v", "testbench.v"]
+        run_cmd = ["vvp", "netlist.vvp"]
+        
+        # Compile design
+        result = subprocess.run(
+            compile_cmd, 
+            capture_output=True, 
+            text=True,
+            cwd=self.config.working_dir
+        )
+        
+        if result.returncode != 0:
+            self.logger.error(f"Final Compilation Error:\n{result.stderr}\n")
+            msg = result.stderr
+        else:
+            # Run tests
+            result = subprocess.run(
+                run_cmd, 
+                capture_output=True, 
+                text=True,
+                cwd=self.config.working_dir
+            )
+            
+            if result.returncode != 0:
+                self.logger.error(f"Final Runtime Error:\n{result.stderr}\n")
+                msg = result.stderr
+            else:
+                msg = result.stdout
+        
+        # Write final results
+        self._write_results(msg)
+        print(f"\nFinal Test Results:\n{msg}\n")
+        
         self.logger.info("Verilog Generation Complete")
         return {"messages": [SystemMessage(content="End graph")]}
 

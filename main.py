@@ -50,7 +50,8 @@ def process_rtllm_directory(
     category_dir: Path,
     logger: Any,
     args: argparse.Namespace,
-    model_config: ModelConfig
+    model_config: ModelConfig,
+    agent_config: AgentConfig
 ) -> None:
     """
     Process all test cases in a given RTLLM category directory.
@@ -60,25 +61,27 @@ def process_rtllm_directory(
         logger: Logger instance
         args: Command line arguments
         model_config: Model configuration
+        agent_config: Agent configuration
     """
     # Check if current directory has design_description.txt
     design_file = category_dir / "design_description.txt"
     if design_file.exists():
         print(f"\nProcessing test case: {category_dir.name}")
-        process_test_case(category_dir, design_file, logger, args, model_config)
+        process_test_case(category_dir, design_file, logger, args, model_config, agent_config)
         return
         
     # Recursively process subdirectories
     for subdir in category_dir.iterdir():
         if subdir.is_dir():
-            process_rtllm_directory(subdir, logger, args, model_config)
+            process_rtllm_directory(subdir, logger, args, model_config, agent_config)
 
 def process_test_case(
     test_dir: Path,
     design_file: Path,
     logger: Any,
     args: argparse.Namespace,
-    model_config: ModelConfig
+    model_config: ModelConfig,
+    agent_config: AgentConfig
 ) -> None:
     """
     Process a single test case directory.
@@ -89,6 +92,7 @@ def process_test_case(
         logger: Logger instance
         args: Command line arguments
         model_config: Model configuration
+        agent_config: Agent configuration
     """
     if args.generate:
         basic_generation(logger, model_config, working_dir=test_dir)
@@ -97,16 +101,9 @@ def process_test_case(
         rag_generation(logger, model_config, working_dir=test_dir)
         
     elif args.agentic_flow > 0:
-        # Setup agent configuration
-        agent_config = AgentConfig(
-            max_loops=args.agentic_flow,
-            design_prompt=design_file.read_text(),
-            verilog_reflection_prompt=(
-                "The verilog design failed testing. "
-                "Please analyze the error and suggest specific fixes."
-            ),
-            working_dir=test_dir
-        )
+        # Update agent configuration with design prompt
+        agent_config.design_prompt = design_file.read_text()
+        agent_config.working_dir = test_dir
         run_agentic_generation(logger, model_config, agent_config)
 
 def get_rtllm_categories(rtllm_dir: Path) -> List[Path]:
@@ -219,7 +216,7 @@ def main() -> None:
         print(f"Setup complete for {category_dir.name}")
         
         # Process all test cases in this category
-        process_rtllm_directory(category_dir, logger, args, model_config)
+        process_rtllm_directory(category_dir, logger, args, model_config, agent_config)
         print(f"Finished processing {category_dir.name}")
 
 if __name__ == "__main__":
