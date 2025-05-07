@@ -25,4 +25,5 @@ test
 # Secret keys
 .env
 
-# Executables
+# Logging
+logging/

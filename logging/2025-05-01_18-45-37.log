@@ -1,5 +1,0 @@
-2025-05-01 18:45:37,789 - Verilog Generation Tool - INFO - This is a test log message
-2025-05-01 18:45:39,063 - Verilog Generation Tool - WARNING - No similar designs found in RAG dataset
-2025-05-01 18:45:45,129 - Verilog Generation Tool - INFO - Generated Verilog written to /home/arun/Research/LLM_HDL/RTLLM_Eval/RTLLM/Arithmetic/Adder/adder_8bit/design.v
-2025-05-01 18:45:45,129 - Verilog Generation Tool - INFO - Testing Verilog Design
-2025-05-01 18:45:45,147 - Verilog Generation Tool - INFO - Verilog design passed all tests

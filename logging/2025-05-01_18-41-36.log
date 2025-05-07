@@ -1,4 +1,0 @@
-2025-05-01 18:41:36,152 - Verilog Generation Tool - INFO - This is a test log message
-2025-05-01 18:41:39,459 - Verilog Generation Tool - INFO - Generated Verilog written to /home/arun/Research/LLM_HDL/RTLLM_Eval/RTLLM/Control/Counter/counter_12/design.v
-2025-05-01 18:41:39,459 - Verilog Generation Tool - INFO - Testing Verilog Design
-2025-05-01 18:41:39,480 - Verilog Generation Tool - INFO - Verilog design passed all tests

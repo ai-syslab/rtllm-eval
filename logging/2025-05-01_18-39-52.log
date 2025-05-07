@@ -1,4 +1,0 @@
-2025-05-01 18:39:52,862 - Verilog Generation Tool - INFO - This is a test log message
-2025-05-01 18:39:59,653 - Verilog Generation Tool - INFO - Generated Verilog written to /home/arun/Research/LLM_HDL/RTLLM_Eval/RTLLM/Arithmetic/Adder/adder_8bit/design.v
-2025-05-01 18:39:59,653 - Verilog Generation Tool - INFO - Testing Verilog Design
-2025-05-01 18:39:59,670 - Verilog Generation Tool - INFO - Verilog design passed all tests
