@@ -11,12 +11,11 @@ from typing import List, Dict, Any
 from langchain_core.messages import SystemMessage, HumanMessage
 import os
 import subprocess
+import asyncio
+from fastmcp import Client
+from mcp import types
 
 from .setup_verilog_generation_agent import ModelConfig
-
-SYSTEM_PROMPT = """You are an assistant that can generate code based on prompts. 
-Your responses should only consist of verilog code when asked to generate a verilog module. 
-When generating verilog, use the Verilog-1995 standard."""
 
 def extract_module_content(message: str) -> str:
     """Extract the Verilog module content from the LLM response.
@@ -47,42 +46,36 @@ def extract_module_content(message: str) -> str:
     
     return '\n'.join(lines[start_idx:len(lines)-end_idx])
 
-def run_verilog_tests(working_dir: Path, logger) -> tuple[bool, str]:
-    """Compile and run Verilog tests using Icarus in the specified directory."""
-    compile_cmd = ["iverilog", "-o", "netlist.vvp", "design.v", "testbench.v"]
-    run_cmd = ["vvp", "netlist.vvp"]
-    
+async def run_verilog_tests_mcp(working_dir: Path, logger) -> tuple[bool, str]:
+    """Compile and run Verilog tests using MCP client in the specified directory."""
     logger.info("Testing Verilog Design")
     print("\n\nVerilog Test:")
     
-    # Compile design
-    result = subprocess.run(
-        compile_cmd, 
-        capture_output=True, 
-        text=True,
-        cwd=working_dir
-    )
-    if result.returncode != 0:
-        error_msg = f"Compilation Error:\n{result.stderr}"
+    try:
+        async with Client("http://localhost:8000/sse") as client:
+            result = await client.call_tool(
+                "run_verilog_tests",
+                {"working_dir": str(working_dir)}
+            )
+            
+            # Convert TextContent to string for output
+            if isinstance(result[0], types.TextContent):
+                output = str(result[0])
+            else:
+                output = str(result[0])
+                
+            print(f"Test Output:\n{output}\n\n")
+            return True, output
+            
+    except Exception as e:
+        error_msg = f"Error running tests: {str(e)}"
         print(f"{error_msg}\n\n")
         logger.error(error_msg)
-        return False, result.stderr
-        
-    # Run tests
-    result = subprocess.run(
-        run_cmd, 
-        capture_output=True, 
-        text=True,
-        cwd=working_dir
-    )
-    if result.returncode != 0:
-        error_msg = f"Runtime Error:\n{result.stderr}"
-        print(f"{error_msg}\n\n")
-        logger.error(error_msg)
-        return False, result.stderr
-    
-    print(f"Test Output:\n{result.stdout}\n\n")
-    return True, result.stdout
+        return False, error_msg
+
+def run_verilog_tests(working_dir: Path, logger) -> tuple[bool, str]:
+    """Compile and run Verilog tests using MCP client in the specified directory."""
+    return asyncio.run(run_verilog_tests_mcp(working_dir, logger))
 
 def basic_generation(logger, model_config: ModelConfig, working_dir: Path = None) -> None:
     """
@@ -105,7 +98,7 @@ def basic_generation(logger, model_config: ModelConfig, working_dir: Path = None
     
     # Generate Verilog using LLM
     messages = [
-        SystemMessage(content=SYSTEM_PROMPT),
+        SystemMessage(content=model_config.system_prompt),
         HumanMessage(content=design_prompt)
     ]
     

@@ -1,30 +1,36 @@
 #!/usr/bin/env python3
 """
 Main entry point for Verilog generation tools.
+iverilog is accessible via MCP server.
+To run the server, poetry run fastmcp run iverilog_mcp_server.py:mcp --transport sse --host 0.0.0.0 --port 8000
+
+RAG database is stored in rag_dataset/chroma/. Delete the directory to re-create the database.
 
 This module provides command-line interface to run different Verilog generation methods:
 1. Basic generation
 2. RAG-enhanced generation
 3. Agentic flow with iterative improvement
 
+LLM models are configured in setup_verilog_generation_agent.py
+
 Usage examples:
     # Basic generation for all categories (default openai)
-    python main.py -g
+    poetry run python main.py -g
     
     # RAG-enhanced generation for all categories (default openai)
-    python main.py -r
+    poetry run python main.py -r
     
     # Agentic flow with 5 iterations for all categories (default openai)
-    python main.py -a 5
+    poetry run python main.py -a 5
     
     # Basic generation for specific category
-    python main.py -g -d Arithmetic
+    poetry run python main.py -g -d Arithmetic
 
     # Basic generation for specific design 
-    python main.py -g -d Arithmetic/Adder/adder_8bit
+    poetry run python main.py -g -d Arithmetic/Adder/adder_8bit
     
     # RAG-enhanced generation with custom model and temperature
-    python main.py -r --model anthropic --temperature 0.5
+    poetry run python main.py -r --model anthropic --temperature 0.5
 """
 
 from pathlib import Path
@@ -36,7 +42,7 @@ from typing import Optional, List, Any
 from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 
 # Import our modules
 from run_verilog_generation_agent.setup_verilog_generation_agent import (

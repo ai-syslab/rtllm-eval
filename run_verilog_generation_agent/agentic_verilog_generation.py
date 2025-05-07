@@ -11,19 +11,17 @@ This module implements an agentic flow that:
 from pathlib import Path
 from typing import TypedDict, Annotated, Optional, List, Tuple, Any
 import operator
+import asyncio
+from fastmcp import Client
+from mcp import types
 
 from langchain_core.messages import (
     AnyMessage, SystemMessage, HumanMessage, ChatMessage
 )
-from langchain.vectorstores import Chroma
 from langgraph.graph import StateGraph, START, END
 import subprocess
 
 from .setup_verilog_generation_agent import ModelConfig, AgentConfig
-
-SYSTEM_PROMPT = """You are an assistant that can generate code based on prompts. 
-Your responses should only consist of verilog code when asked to generate a verilog module. 
-When generating verilog, use the Verilog-1995 standard."""
 
 class AgentState(TypedDict):
     """State maintained throughout the agent's execution."""
@@ -69,7 +67,7 @@ class VerilogGenerationAgent:
         
         # Initialize conversation
         self.conversation = [
-            SystemMessage(content=SYSTEM_PROMPT),
+            SystemMessage(content=self.model_config.system_prompt),
             HumanMessage(content=self.config.design_prompt)
         ]
         
@@ -102,52 +100,18 @@ class VerilogGenerationAgent:
         
         return graph.compile()
 
-    # def rag(self, state: AgentState) -> dict:
-    #     """Retrieve similar designs using RAG."""
-    #     vectordb = Chroma(
-    #         persist_directory=self.model_config.rag_persist_directory,
-    #         embedding_function=self.model_config.embeddings
-    #     )
-        
-    #     results = vectordb.max_marginal_relevance_search(
-    #         self.config.design_prompt, k=2, fetch_k=3
-    #     )
-        
-    #     if not results:
-    #         return {'messages': []}
-            
-    #     similar_design = results[0]
-    #     print(f"\nRAG design summary:\n{similar_design}")
-    #     print(f"RAG verilog design:\n{similar_design.metadata['code']}\n")
-        
-    #     self.logger.info(
-    #         f"RAG design summary:\n{similar_design}\n"
-    #         f"RAG verilog design:\n{similar_design.metadata['code']}\n"
-    #     )
-        
-    #     self.conversation.append(
-    #         SystemMessage(content=f"Here is a sample verilog script to reference: "
-    #                             f"{similar_design.metadata['code']}")
-    #     )
-        
-    #     if input("\nPress Enter to continue, or 'exit' to stop: ").lower() == "exit":
-    #         raise StopIteration("User requested termination")
-            
-    #     return {'messages': []}
 
     def design_generation(self, state: AgentState) -> dict:
         """Generate Verilog design based on prompt and context."""
+        print("\nSending prompt to LLM...")
         self.logger.info(f"Generation Prompt:\n{self.config.design_prompt}\n")
         
         message = self.model_config.generation_client.invoke(self.conversation).content
+        print("Received response from LLM")
         module = extract_module_content(message)
         
         self.logger.info(f"Generated Design:\n{module}\n")
         
-        # user_input = input("\nContinue design iteration? (Y/N): ").upper()
-        # if user_input != 'Y':
-        #     raise StopIteration("User requested termination")
-            
         # Update conversation history
         if len(self.conversation) >= 4:
             self.conversation[2] = ChatMessage(role='assistant', content=message)
@@ -156,44 +120,43 @@ class VerilogGenerationAgent:
             self.conversation.append(ChatMessage(role='assistant', content=message))
             
         # Save design
+        print("Writing generated Verilog to file...")
         design_file = self.config.working_dir / "design.v"
         design_file.write_text(module)
+        print(f"Wrote Verilog to {design_file}")
         
         return {'messages': [message]}
+
+    async def _verilog_test_mcp(self) -> tuple[str, bool]:
+        """Test the generated Verilog design using MCP client."""
+        try:
+            async with Client("http://localhost:8000/sse") as client:
+                result = await client.call_tool(
+                    "run_verilog_tests",
+                    {"working_dir": str(self.config.working_dir)}
+                )
+                
+                # Convert TextContent to string for output
+                if isinstance(result[0], types.TextContent):
+                    output = str(result[0])
+                else:
+                    output = str(result[0])
+                    
+                return output, True
+                
+        except Exception as e:
+            error_msg = f"Error running tests: {str(e)}"
+            self.logger.error(error_msg)
+            return error_msg, False
 
     def verilog_test(self, state: AgentState) -> int:
         """Test the generated Verilog design and handle failures."""
         self.logger.info("Testing Verilog Design")
+        print("\nVerilog Test:")
         
-        # Run tests
-        compile_cmd = ["iverilog", "-o", "netlist.vvp", "design.v", "testbench.v"]
-        run_cmd = ["vvp", "netlist.vvp"]
-        
-        # Compile design
-        result = subprocess.run(
-            compile_cmd, 
-            capture_output=True, 
-            text=True,
-            cwd=self.config.working_dir
-        )
-        
-        if result.returncode != 0:
-            self.logger.error(f"Compilation Error:\n{result.stderr}\n")
-            msg = result.stderr
-        else:
-            # Run tests
-            result = subprocess.run(
-                run_cmd, 
-                capture_output=True, 
-                text=True,
-                cwd=self.config.working_dir
-            )
-            
-            if result.returncode != 0:
-                self.logger.error(f"Runtime Error:\n{result.stderr}\n")
-                msg = result.stderr
-            else:
-                msg = result.stdout
+        # Run tests using MCP client
+        msg, success = asyncio.run(self._verilog_test_mcp())
+        print(f"Test Output:\n{msg}\n")
         
         # Write results
         self._write_results(msg)

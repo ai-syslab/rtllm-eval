@@ -20,7 +20,7 @@ from langchain_core.language_models import BaseChatModel
 from langchain_openai import ChatOpenAI # poetry add langchain-openai
 from langchain_anthropic import ChatAnthropic # poetry add langchain-anthropic
 from langchain_google_genai import ChatGoogleGenerativeAI # poetry add langchain-google-genai 
-from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 
 # Get the directory of this file
 CURRENT_DIR = Path(__file__).parent
@@ -32,6 +32,7 @@ class ModelConfig:
     reflection_client: BaseChatModel
     embeddings: OpenAIEmbeddings
     rag_persist_directory: str
+    system_prompt: str
 
 @dataclass
 class AgentConfig:
@@ -111,10 +112,41 @@ def load_reflection_prompt(config_dir: Path = CURRENT_DIR.parent.parent / "confi
         
     return config['verilog_reflection_prompt']
 
+def load_system_prompt(config_dir: Path = CURRENT_DIR.parent / "config") -> str:
+    """
+    Load system prompt from YAML configuration.
+    
+    Args:
+        config_dir: Path to the config directory
+        
+    Returns:
+        System prompt string
+        
+    Raises:
+        FileNotFoundError: If config file doesn't exist
+        KeyError: If required key is missing from config
+    """
+    prompt_file = config_dir / "system_prompt.yml"
+    
+    if not prompt_file.exists():
+        raise FileNotFoundError(
+            f"System prompt config not found at {prompt_file}"
+        )
+        
+    with prompt_file.open('r') as f:
+        config = yaml.safe_load(f)
+        
+    if 'system_prompt' not in config:
+        raise KeyError(
+            "system_prompt not found in config file"
+        )
+        
+    return config['system_prompt']
+
 def create_model_config(
     provider: str = "openai",
     temperature: float = 0.7,
-    rag_dir: str = str(CURRENT_DIR.parent.parent / "rag_dataset" / "chroma")
+    rag_dir: str = str(CURRENT_DIR / "rag_dataset" / "chroma")
 ) -> ModelConfig:
     """
     Create model configuration for specified provider.
@@ -132,6 +164,9 @@ def create_model_config(
     """
     # Create embeddings for RAG
     embeddings = OpenAIEmbeddings(api_key=os.getenv('OPENAI_API_KEY'))
+    
+    # Load system prompt
+    system_prompt = load_system_prompt()
     
     # Setup provider-specific clients
     if provider == "openai":
@@ -174,7 +209,8 @@ def create_model_config(
         generation_client=generation_client,
         reflection_client=reflection_client,
         embeddings=embeddings,
-        rag_persist_directory=rag_dir
+        rag_persist_directory=rag_dir,
+        system_prompt=system_prompt
     )
 
 def setup_agent(

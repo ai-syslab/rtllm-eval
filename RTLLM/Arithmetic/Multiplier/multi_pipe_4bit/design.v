@@ -1,54 +1,47 @@
-module multi_pipe_4bit(
-    input clk,
-    input rst_n,
-    input [3:0] mul_a,
-    input [3:0] mul_b,
-    output [7:0] mul_out
-);
+module multi_pipe_4bit(clk, rst_n, mul_a, mul_b, mul_out);
+  parameter size = 4;
 
-    parameter size = 4;
+  input clk;
+  input rst_n;
+  input [size-1:0] mul_a;
+  input [size-1:0] mul_b;
+  output [2*size-1:0] mul_out;
 
-    reg [7:0] partial_products [size-1:0];
-    reg [7:0] sum_stage1, sum_stage2;
+  reg [2*size-1:0] partial_products[size-1:0];
+  reg [2*size-1:0] sum_lvl1;
+  reg [2*size-1:0] sum_lvl2;
+  reg [2*size-1:0] product;
 
-    integer i;
+  integer i;
 
-    // Generate partial products
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            for (i = 0; i < size; i = i + 1) begin
-                partial_products[i] <= 8'd0;
-            end
-        end else begin
-            for (i = 0; i < size; i = i + 1) begin
-                if (mul_b[i] == 1'b1) begin
-                    partial_products[i] <= {mul_a, 4'b0000} << i;
-                end else begin
-                    partial_products[i] <= 8'd0;
-                end
-            end
-        end
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+      for (i = 0; i < size; i = i + 1) begin
+        partial_products[i] <= 0;
+      end
+      sum_lvl1 <= 0;
+      sum_lvl2 <= 0;
+      product <= 0;
+    end else begin
+      // Generate partial products
+      for (i = 0; i < size; i = i + 1) begin
+        if (mul_b[i])
+          partial_products[i] <= mul_a << i;
+        else
+          partial_products[i] <= 0;
+      end
+
+      // First level of addition
+      sum_lvl1 <= partial_products[0] + partial_products[1];
+
+      // Second level of addition
+      sum_lvl2 <= partial_products[2] + partial_products[3];
+
+      // Final product calculation
+      product <= sum_lvl1 + sum_lvl2;
     end
+  end
 
-    // First level of pipeline registers
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            sum_stage1 <= 8'd0;
-        end else begin
-            sum_stage1 <= partial_products[0] + partial_products[1] + partial_products[2] + partial_products[3];
-        end
-    end
-
-    // Second level of pipeline registers
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            sum_stage2 <= 8'd0;
-        end else begin
-            sum_stage2 <= sum_stage1;
-        end
-    end
-
-    // Final product output
-    assign mul_out = sum_stage2;
+  assign mul_out = product;
 
 endmodule
